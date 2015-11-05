@@ -41,18 +41,9 @@ package main
 import (
 	"fmt"
 	"github.com/nick-parry/go-iptables/iptables"
-	"os"
-	"os/user"
 )
 
-func main() {
-
-	// Make sure we are the root user.
-	u, err := user.Current()
-	if u.Uid != "0" {
-		fmt.Println("You must be root to run this. Try again.")
-		os.Exit(1)
-	}
+func setup() {
 
 	i, err := iptables.New()
 	if err != nil {
