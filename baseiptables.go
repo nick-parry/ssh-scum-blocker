@@ -40,10 +40,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/nick-parry/go-iptables/iptables"
+	"github.com/coreos/go-iptables/iptables"
 )
 
-func setup() {
+func setupBaseIPTables() {
 
 	i, err := iptables.New()
 	if err != nil {
@@ -89,4 +89,22 @@ func setup() {
 		}
 	*/
 
+}
+
+// Check for the existance of the LOGGING iptables base chain
+func checkIPTablesBaseConfig() bool {
+	ipt, err := iptables.New()
+	if err != nil {
+		fmt.Println("Some stuff is broken yo.")
+	}
+
+	chain := "LOGGING"
+
+	_, err = ipt.List("filter", chain)
+	if err != nil {
+		fmt.Println(chain, " doesn't exist. It needs to be created.")
+		return false
+	} else {
+		return true
+	}
 }
