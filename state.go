@@ -1,6 +1,7 @@
 package main
 
 import "strings"
+
 import "fmt"
 
 // The State struct contains the slice of scums that we have encountered.
@@ -16,6 +17,10 @@ func (s *State) Add(sc Scum) {
 // Increment the attempt counter for a given scum
 func (s *State) incAttempt(i int) bool {
 	s.States[i].NumAttempts++
+	if DEBUG == true {
+		log(fmt.Sprintf("incAttempt: Incrementing the scum counter for %v to %v",
+			s.States[i].IP, s.States[i].NumAttempts))
+	}
 	return true
 }
 
@@ -24,8 +29,12 @@ func (s *State) incAttempt(i int) bool {
 func (s *State) stateScumSearch(ip string) (scumIndex int, ok bool) {
 	// Iterate through the scums and see if we find a match
 	for scumIndex, scum := range s.States {
-		// If it matches, lets return the scum object reference
+		// If it matches, lets return the scum index
 		if scum.IP == ip {
+			if DEBUG == true {
+				log(fmt.Sprintf("stateScumSearch: Found scum item for ip: %v. Returning index: %v",
+					ip, scumIndex))
+			}
 			return scumIndex, true
 		}
 	}
@@ -44,15 +53,15 @@ func (s *State) stateScumSearch(ip string) (scumIndex int, ok bool) {
 		- If they have not reached the offensive number of attempts
 		- If they are flagged as DoNotBlock
 */
-func (s *State) CheckIP(ip string) bool {
+func (s *State) CheckIP(ip string) (*Scum, bool) {
 	// See if this ip matches any of the ignore patterns
 	for _, p := range ignorePatterns {
 		if strings.Contains(ip, p) {
 			// Do not block this if it is in the pattern
 			if DEBUG == true {
-				fmt.Println("IP:", ip, "Matches pattern to ignore")
+				log(fmt.Sprintf("IP: %v Matches pattern to ignore", ip))
 			}
-			return false
+			return nil, false
 		}
 	}
 
@@ -63,42 +72,50 @@ func (s *State) CheckIP(ip string) bool {
 	if ok == false {
 		sc := new(Scum)
 		sc.IP = ip
+		sc.Blocked = false
 		sc.NumAttempts = 1
 		s.Add(*sc)
 		if DEBUG == true {
-			fmt.Println("New'd up a scum")
+			log(fmt.Sprintf("First time for this one. New'd up a scum for ip: %v", ip))
 		}
-		return false
+		return sc, false
 	} else {
-		// Since we found it, we need to increment the counter, and return false
-		ok := s.incAttempt(scumIndex)
-		if ok != true {
-			fmt.Println("Failed to increment.")
-		}
-		if DEBUG == true {
-			fmt.Println("Incremented the numAttempts to:", s.States[scumIndex].NumAttempts)
+		// Since we found it, we need check and see if it has been blocked yet.
+		if s.States[scumIndex].Blocked {
+			// Since this ip is already being blocked, we will do nothing and stop
+			// any further processing
+			if DEBUG == true {
+				log(fmt.Sprintf("This scum: %v is already marked as blocked. Stopping here.", ip))
+			}
+			return nil, false
+		} else {
+			// Since it hasn't yet been blocked, we need to increment the counter, and return false
+			ok := s.incAttempt(scumIndex)
+			if ok != true {
+				log("Failed to increment.")
+			}
 		}
 	}
 
 	// See if this ip is flagged to ignore
 	if s.States[scumIndex].DoNotBlock == true {
 		if DEBUG == true {
-			fmt.Println("This scum is flagged to not block")
+			log("This scum is flagged to not block")
 		}
-		return false
+		return nil, false
 	}
 
-	// If we have tried to many times block them
+	// If they have tried too many times, block them
 	if s.States[scumIndex].NumAttempts >= maxAttempts {
 		if DEBUG == true {
-			fmt.Println("This scum has tried to many times. Blocking.")
+			log("This scum has tried to many times. Blocking.")
 		}
-		return true
+		return &s.States[scumIndex], true
 	}
 
 	// If we made it here, this ip isn't ready to block yet
 	if DEBUG == true {
-		fmt.Println("Default is to not block IPs. Returning false.")
+		log("Didn't meet enough criteria to block this ip. Returning false.")
 	}
-	return false
+	return nil, false
 }

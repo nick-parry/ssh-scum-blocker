@@ -55,21 +55,21 @@ func TestCheckIP(t *testing.T) {
 
 	// Test that we block if an ip has the limit of attempts
 	s.States[0].NumAttempts = maxAttempts
-	ok := s.CheckIP("8.8.8.8")
+	_, ok := s.CheckIP("8.8.8.8")
 	if ok == false {
 		t.Error("TestCheckIP: expected: true, got: ", ok)
 	}
 
 	// Test to see if we can block one with not enough requests
 	s.States[1].NumAttempts = (maxAttempts - 2)
-	ok = s.CheckIP("8.8.4.4")
+	_, ok = s.CheckIP("8.8.4.4")
 	if ok == true {
 		t.Error("TestCheckIP: expected: false, got: ", ok)
 	}
 
 	// Test to see if we can block one that is marked as do not block
 	s.States[1].DoNotBlock = true
-	ok = s.CheckIP("8.8.4.4")
+	_, ok = s.CheckIP("8.8.4.4")
 	if ok == true {
 		t.Error("TestCheckIP: expected: false, got: ", ok)
 	}
@@ -77,7 +77,7 @@ func TestCheckIP(t *testing.T) {
 	// Do not block something if an ip matches an ignore pattern
 	// NOTE: This matches the default lan ip prefix that the ignorePatterns
 	// defaults to.
-	ok = s.CheckIP("192.168.15.5")
+	_, ok = s.CheckIP("192.168.15.5")
 	if ok == true {
 		t.Error("TestCheckIP: expected: false, got: ", ok)
 	}

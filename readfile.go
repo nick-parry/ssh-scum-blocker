@@ -8,9 +8,9 @@ import (
 
 func ReadLogFile(state *State) {
 
-	t, err := tail.TailFile(AuthLog, tail.Config{Follow: true})
+	t, err := tail.TailFile(AuthLog, tail.Config{Follow: true, ReOpen: true})
 	if err != nil {
-		fmt.Println("There was a problem opening the file.")
+		log("There was a problem opening the file.")
 	}
 
 	// Tail the auth.log file and inspect lines as they come in.
@@ -24,21 +24,24 @@ func ReadLogFile(state *State) {
 			r, _ := regexp.Compile("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")
 			ip := r.FindString(line.Text)
 			if len(ip) < 3 {
-				fmt.Println("The ip was to short to be valid: ", ip)
+				log(fmt.Sprintf("The ip was to short to be valid: %v", ip))
 			} else {
 				// Does this ip need to be blocked
-				block := state.CheckIP(ip)
-				fmt.Println("Block:", block)
+				scum, block := state.CheckIP(ip)
+				log(fmt.Sprintf("%v to block IP: %v", block, ip))
 				if block == true {
-					fmt.Println("Blocking ip:", ip)
+					log(fmt.Sprintf("Blocking ip: %v", ip))
+					// Block this ip
 					BlockIP(ip)
+					// Mark this scum as being blocked
+					scum.Blocked = true
 				} else {
-					fmt.Println("Not blocking ip:", ip)
+					log(fmt.Sprintf("ReadLogFile: Not blocking ip: %v", ip))
 				}
 
 			}
 		}
-		// Else, we will just move on since this log line has now relevance
+		// Else, we will just move on since this log line has no relevance
 	}
 
 }

@@ -8,3 +8,5 @@ type Scum struct {
 	Blocked     bool
 	DoNotBlock  bool
 }
+
+// Do we need a describe method to print out the items for each scum?

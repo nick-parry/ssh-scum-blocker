@@ -1,0 +1,14 @@
+Currently, draft1 is deployed to server2 and running. Much more work is
+needed before this is ready for primetime.
+
+Many tests should be written.
+
+
+The BREAKING current issue that I discovered was the issue was that the log
+file was gone, and the process seemed to have given up. I need to write some
+tests for this and even do some manual testing. That didn't happen.
+
+Here is the last line in the screen session as the process died:
+    2015/11/22 06:37:10 Stopping tail as file no longer exists: /var/log/auth.log
+
+

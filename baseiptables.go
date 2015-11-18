@@ -47,7 +47,7 @@ func setupBaseIPTables() {
 
 	i, err := iptables.New()
 	if err != nil {
-		fmt.Println("Some stuff is broken yo.")
+		log("Some stuff is broken yo.")
 	}
 
 	// The table that we are going to use(the default is filter)
@@ -63,46 +63,36 @@ func setupBaseIPTables() {
 	err = i.AppendUnique(table, chain, "-m", "limit", "--limit", "5/min", "--limit-burst", "10",
 		"-j", "LOG", "--log-prefix", "Drop it like its hot:", "--log-level", "7")
 	if err != nil {
-		fmt.Printf("ERROR YO:\n%s", err)
+		fmt.Printf("ERROR YO:\n%v", err)
 	}
 	// Setup the drop rule. This will drop all packets that make it to this chain.
 	err = i.AppendUnique(table, chain, "-j", "DROP")
 	if err != nil {
-		fmt.Printf("ERROR YO:\n%s", err)
+		log(fmt.Sprintf("ERROR YO:\n%v", err))
 	}
-	fmt.Println("Done adding the logging chain.")
+	log("Done adding the logging chain.")
 
 	// Add the icmp block to the input chain
 	chain = "INPUT"
 	err = i.AppendUnique(table, chain, "-p", "icmp", "-m", "icmp",
 		"--icmp-type", "8", "-j", "LOGGING")
 	if err != nil {
-		fmt.Printf("ERROR YO:\n%s", err)
+		log(fmt.Sprintf("ERROR YO:\n%v", err))
 	}
-
-	/*
-		// Now, lets list out the rules in the logging chain
-		stuff, err := i.List(table, chain)
-		fmt.Printf("Here is what the current %s looks like:\n", chain)
-		for _, j := range stuff {
-			fmt.Println(j)
-		}
-	*/
-
 }
 
 // Check for the existance of the LOGGING iptables base chain
 func checkIPTablesBaseConfig() bool {
 	ipt, err := iptables.New()
 	if err != nil {
-		fmt.Println("Some stuff is broken yo.")
+		log("Some stuff is broken yo.")
 	}
 
 	chain := "LOGGING"
 
 	_, err = ipt.List("filter", chain)
 	if err != nil {
-		fmt.Println(chain, " doesn't exist. It needs to be created.")
+		log(fmt.Sprintf("%v doesn't exist. It needs to be created.", chain))
 		return false
 	} else {
 		return true

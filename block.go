@@ -16,7 +16,7 @@ func BlockIP(ip string) bool {
 	// Get a new iptables interface
 	ipt, err := iptables.New()
 	if err != nil {
-		fmt.Println("Failed to new up an IPtables intance:", err)
+		log(fmt.Sprintf("Failed to new up an IPtables intance. ERROR: %v", err))
 		return false
 	}
 
@@ -26,7 +26,7 @@ func BlockIP(ip string) bool {
 	// Use the appendUnique method to put this in iptables, but only once
 	err = ipt.AppendUnique("filter", sChain, "-s", ipstr, "-j", dChain)
 	if err != nil {
-		fmt.Println("Failed to ban an ip:", err)
+		log(fmt.Sprintf("Failed to ban an ip(%v). ERROR: %v", ipstr, err))
 		return false
 	}
 
@@ -42,7 +42,7 @@ func UnBlockIP(ip string) bool {
 	// Get a new iptables interface
 	ipt, err := iptables.New()
 	if err != nil {
-		fmt.Println("Failed to new up an IPtables intance:", err)
+		log(fmt.Sprintf("Failed to new up an IPtables intance. ERROR: %v", err))
 		return false
 	}
 
@@ -52,7 +52,7 @@ func UnBlockIP(ip string) bool {
 	// Use the appendUnique method to put this in iptables, but only once
 	err = ipt.Delete("filter", sChain, "-s", ipstr, "-j", dChain)
 	if err != nil {
-		fmt.Println("Failed to ban an ip:", err)
+		log(fmt.Sprintf("Failed to ban an ip(%v). ERROR: %v", ipstr, err))
 		return false
 	}
 
