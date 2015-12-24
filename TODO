@@ -1,14 +1,27 @@
-Currently, draft1 is deployed to server2 and running. Much more work is
+Currently, draft1 is deployed from master and running. Much more work is
 needed before this is ready for primetime.
 
 Many tests should be written.
 
 
-The BREAKING current issue that I discovered was the issue was that the log
-file was gone, and the process seemed to have given up. I need to write some
-tests for this and even do some manual testing. That didn't happen.
+TODO:
+    - We should log to a file someday like an adult process.
 
-Here is the last line in the screen session as the process died:
-    2015/11/22 06:37:10 Stopping tail as file no longer exists: /var/log/auth.log
+    - We should manage a timeframe to block these attempts and then expire the
+        blocks that we create. Instead of a "block forever" method that we have
+        now. This would allow us to clean up the memory footprint.
+
+    - We should have some way to ask the currently running process about some
+        some current stats. Like, how many ips have been blocked today? How many
+        have you blocked in the last 4 hours?
+
+    - More features should be described in greater detail someday. :|
+
+FIXED:
+    The BREAKING current issue that I discovered was the issue was that the log
+        file was gone, and the process seemed to have given up. I need to write some
+        tests for this and even do some manual testing. That didn't happen.
+    Here is the last line in the screen session as the process died:
+        2015/11/22 06:37:10 Stopping tail as file no longer exists: /var/log/auth.log
 
 

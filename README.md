@@ -11,18 +11,12 @@ Here is the main point of this application:
 
 Here is the basic flow of this application:
 - make sure the user is root
+- Make sure you have the basic iptables logging/drop chain
 - tail /var/log/auth.log looking for some key patterns
-- If you find an ip, save it and its occurences into the state file
+- If you find an ip, save it and its occurences into a list of "scum" objects
 - If the ip reaches maxAttempts occurences, block it and mark it as blocked
-    Here is the JSON structure of an ip in the state file
-    {
-        "ip" : "1.2.3.4",
-        "numAttempts" : 24,
-        "blocked" : true,
-    }
 
 
-Stuff that should be added:
-    - We should unban an ip after a given time.
-    - We should check the state file and make sure it doesn't grow to much.
 
+A more current list of features that I want and those that have been added can
+be found in the TODD file.
